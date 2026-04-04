@@ -1,6 +1,7 @@
 # ngender-php-API-light
 ## 概述
 这是[ngender-php-api](https://github.com/yyswys-yjyj/ngender-php-api)的轻量版本，原版均来自[observerss/ngender](https://github.com/observerss/ngender)
+如果你想做多机部署，你可以看看[ngender-php-api-webcore](https://github.com/yyswys-yjyj/ngender-php-api-webcore)
 ## 功能
 |功能|效果|说明|
 |-|-|-|
