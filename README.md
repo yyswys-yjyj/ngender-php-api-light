@@ -30,8 +30,10 @@ curl http://example.com/api.php?name=测试
 | `mapping` | string (JSON) | 否 | 无 | 自定义姓名映射表，JSON 字符串格式。优先级高于算法。支持两种格式：<br>• 对象格式：`{"张三":{"gender":"male","min":0.8,"max":0.95}}`<br>• 索引数组格式：`{"李四":["female",0.9,1]}`<br>概率范围必须 `0.5 ≤ min ≤ max ≤ 1`。 |
 | `debug` | integer | 否 | `0` | 是否返回调试信息。`1` 开启，`0` 关闭。开启后返回字段 `debug_info`，包含请求参数、映射表解析过程、随机数生成值、概率计算中间结果等（不包含随机到的趣味文案）。 |
 
-> 虽然文档只提到了GET方法，但也支持POST和OPTIONS 
+> 虽然文档只提到了GET方法，但也支持POST和OPTIONS
 
+## 更多文档
+[https://apihelp.serveryyswys.top/8457813m0](https://apihelp.serveryyswys.top/8457813m0)
 ## 部署
 ### 安装
 部署在安装了php 7.0+并带有mbstring的服务器，异步项目
