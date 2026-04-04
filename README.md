@@ -1,5 +1,4 @@
 # ngender-php-API-light
----
 ## 概述
 这是一个[ngender-php-api](https://github.com/yyswys-yjyj/ngender-php-api)的轻量版本，原版均来自[observerss/ngender](https://github.com/observerss/ngender)
 ## 功能
