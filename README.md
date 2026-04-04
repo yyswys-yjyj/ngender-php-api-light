@@ -1,13 +1,11 @@
 # ngender-php-API-light
 ## 概述
-这是一个[ngender-php-api](https://github.com/yyswys-yjyj/ngender-php-api)的轻量版本，原版均来自[observerss/ngender](https://github.com/observerss/ngender)
+这是[ngender-php-api](https://github.com/yyswys-yjyj/ngender-php-api)的轻量版本，原版均来自[observerss/ngender](https://github.com/observerss/ngender)
 ## 功能
 |功能|效果|说明|
 |-|-|-|
 |仅API|80/443端口访问|相较于完整版，该版本去掉了web访问|
-|防XSS注入攻击|防攻击|如果你有WAF最好开启，防XSS是AI写的，我只是实践者，不是项目开发者|
-|本地历史存储|使用LocalStorage进行存储|可存储历史记录|
-|分享链接|80/443端口访问，一串带明文data的链接|能发微信里就行~~bushi~~|
+|防XSS注入攻击|防攻击|如果你有WAF最好开启，防XSS是AI写的，我只是实践者，不是项目开发者||
 |娱乐性功能|这个项目提供了4种功能|你可以通过这些功能，配合“分享”来整蛊你的朋友|
 |自定义映射表|能够手动指定一个名字所对应的结果，优先级比任何模式都要大|这个功能是为了避免一些众所周知的问题，也能实现更正原项目中“胜男”的问题|
 ## API简述
