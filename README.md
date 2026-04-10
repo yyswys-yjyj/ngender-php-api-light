@@ -1,4 +1,11 @@
 # ngender-php-API-light
+> 改版本将会迎来一次小更新，具体如下：
+> - 限制参数功能
+> - 黑名单功能
+> - 强制映射表功能
+> - 自定义返回参数功能
+> - 管理后台
+
 ## 概述
 这是[ngender-php-api](https://github.com/yyswys-yjyj/ngender-php-api)的轻量版本，原版均来自[observerss/ngender](https://github.com/observerss/ngender)   
 如果你想做集群部署，你可以看看[ngender-php-api-webcore](https://github.com/yyswys-yjyj/ngender-php-api-webcore)
