@@ -41,7 +41,7 @@ curl http://example.com/api.php?name=测试
 ### 安装
 部署在安装了php 7.0+并带有mbstring的服务器，异步项目
 # ngender-php-API-light 快照版说明
-> 快照版本：snapshot_v20260411.01
+> 快照版本：snapshot_v20260411.01-light
 
 ## 概述
 本次快照版主要增加了些访问控制功能
