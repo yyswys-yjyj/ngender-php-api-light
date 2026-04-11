@@ -44,5 +44,22 @@ curl http://example.com/api.php?name=测试
 ## 部署
 ### 安装
 部署在安装了php 7.0+并带有mbstring的服务器，异步项目
+# ngender-php-API-light 快照版说明
+> 快照版本：snapshot_v20260411.01
+
+## 概述
+本次快照版主要增加了些访问控制功能
+该快照版本添加了以下功能：
+1. 自定义错误说明
+2. 黑名单名字
+3. 强绑定式映射表
+4. 限制功能访问
+5. 禁用访问参数
+6. 后台管理面板
+## 使用
+现在部署项目后，访问/dash.php即可进入后台管理面板，**请及时更改控制台密码**
+
+---
+
 ## 项目说明
 该项目搬自[observerss大佬写的ngender](https://github.com/observerss/ngender)，结合AI把它改成了可网页访问、API调用的php版本
