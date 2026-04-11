@@ -1,6 +1,6 @@
 <?php
 /**
- * NGender 纯API版
+ * NGender 纯API版（支持配置管理）
  */
 header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: *');
@@ -21,6 +21,7 @@ define('BASE_MALE', 0.581915415729593);
 define('BASE_FEMALE', 0.418084584270407);
 define('JSON_FILE_PATH', __DIR__ . '/charfreq.json');
 define('TIPS_JSON_FILE_PATH', __DIR__ . '/tips.json');
+define('CONFIG_DB_FILE', __DIR__ . '/o.db');
 
 // 模式定义
 define('METHOD_NORMAL', 0);
@@ -33,6 +34,35 @@ define('METHOD_LABELS', [
     METHOD_OPPOSITE => '反向性别',
     METHOD_RANDOM   => '随机模式'
 ]);
+
+/**
+ * 加载配置
+ */
+function loadConfig() {
+    if (!file_exists(CONFIG_DB_FILE)) {
+        // 若不存在，返回默认配置（不自动创建，以免污染）
+        return [
+            'disabled_params' => [],
+            'blacklist' => [],
+            'force_mapping' => [],
+            'restrict_modes' => false,
+            'custom_errors' => [
+                'param_disabled' => ['code' => 404, 'msg' => '参数已被禁用'],
+                'name_blacklisted' => ['code' => 403, 'msg' => '姓名在黑名单中'],
+                'mode_restricted' => ['code' => 403, 'msg' => '当前模式已被限制'],
+                'unknown_param' => ['code' => 404, 'msg' => '未知参数']
+            ]
+        ];
+    }
+    $content = file_get_contents(CONFIG_DB_FILE);
+    $config = json_decode($content, true);
+    if (json_last_error() !== JSON_ERROR_NONE) {
+        jsonExit(500, '配置文件 o.db 解析失败');
+    }
+    return $config;
+}
+
+$config = loadConfig();
 
 function xssFilter($str) {
     if (is_null($str) || !is_string($str)) return '';
@@ -60,9 +90,27 @@ function getParam($key) {
     return json_last_error() === JSON_ERROR_NONE && isset($json[$key]) ? xssFilter($json[$key]) : null;
 }
 
+// 检查请求中是否包含禁用的参数
+foreach ($config['disabled_params'] as $disabledParam) {
+    if (getParam($disabledParam) !== null) {
+        $err = $config['custom_errors']['param_disabled'] ?? ['code' => 404, 'msg' => '参数已被禁用'];
+        jsonExit($err['code'], $err['msg']);
+    }
+}
+
+// 检查是否有未知参数
+$allowedParams = ['name', 'method', 'nolimit', 'mapping', 'debug'];
+foreach (array_merge(array_keys($_GET), array_keys($_POST)) as $param) {
+    if (!in_array($param, $allowedParams)) {
+        $err = $config['custom_errors']['unknown_param'] ?? ['code' => 404, 'msg' => '未知参数'];
+        jsonExit($err['code'], $err['msg']);
+    }
+}
+
 function parseMapping($mappingStr, &$debugInfo = null) {
     if (empty($mappingStr)) return null;
     $mappingStr = trim($mappingStr);
+    // 关键修复：HTML实体解码
     $decoded = html_entity_decode($mappingStr, ENT_QUOTES | ENT_HTML5, 'UTF-8');
     if ($debugInfo !== null) {
         $debugInfo['mapping_raw'] = $mappingStr;
@@ -247,7 +295,7 @@ class NGender {
     }
 }
 
-// ========== 主逻辑（无路由限制） ==========
+// ========== 主逻辑 ==========
 $name = getParam('name');
 $nolimit = getParam('nolimit');
 $method = isset($_GET['method']) || isset($_POST['method']) ? (int)getParam('method') : METHOD_NORMAL;
@@ -255,6 +303,50 @@ $mappingStr = getParam('mapping');
 $debug = isset($_GET['debug']) ? (int)getParam('debug') : 0;
 
 if (!in_array($method, [METHOD_NORMAL, METHOD_REVERSE, METHOD_OPPOSITE, METHOD_RANDOM])) $method = METHOD_NORMAL;
+
+// 模式限制检查
+if ($config['restrict_modes'] && $method !== METHOD_NORMAL) {
+    $err = $config['custom_errors']['mode_restricted'] ?? ['code' => 403, 'msg' => '当前模式已被限制'];
+    jsonExit($err['code'], $err['msg']);
+}
+
+// 黑名单检查
+if (in_array($name, $config['blacklist'])) {
+    $err = $config['custom_errors']['name_blacklisted'] ?? ['code' => 403, 'msg' => '姓名在黑名单中'];
+    jsonExit($err['code'], $err['msg']);
+}
+
+// 强绑定映射检查（优先级最高）
+if (isset($config['force_mapping'][$name])) {
+    $rule = $config['force_mapping'][$name];
+    if (isset($rule['gender'])) {
+        $gender = strtolower($rule['gender']);
+        $minProb = isset($rule['min']) ? floatval($rule['min']) : 0.5;
+        $maxProb = isset($rule['max']) ? floatval($rule['max']) : 1.0;
+    } elseif (is_array($rule) && count($rule) >= 2) {
+        $gender = strtolower($rule[0]);
+        $minProb = isset($rule[1]) ? floatval($rule[1]) : 0.5;
+        $maxProb = isset($rule[2]) ? floatval($rule[2]) : 1.0;
+    } else {
+        jsonExit(500, '强绑定映射格式错误');
+    }
+    $random = mt_rand() / mt_getrandmax();
+    $prob = $minProb + $random * ($maxProb - $minProb);
+    $prob = round($prob, 6);
+    $tipsData = loadTipsData();
+    $responseData = [
+        'name' => $name,
+        'gender' => $gender,
+        'gender_cn' => $gender === 'male' ? '男' : '女',
+        'probability' => $prob,
+        'fun_tip' => getRandomTip($prob, $gender, $tipsData),
+        'nolimit_used' => in_array(strtolower((string)$nolimit), ['true', '1', 'yes', 'on']),
+        'mode' => $method,
+        'ismodified' => true,
+        'force_mapped' => true
+    ];
+    jsonExit(200, '查询成功', $responseData);
+}
 
 $jsonData = loadJsonData();
 $tipsData = loadTipsData();
